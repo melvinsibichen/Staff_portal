@@ -1,0 +1,49 @@
+.card {
+  max-width: 640px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--hover);
+  }
+
+  .num {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .muted {
+    font-size: 12px;
+  }
+}
+
+.results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .muted {
+    font-size: 13px;
+  }
+}

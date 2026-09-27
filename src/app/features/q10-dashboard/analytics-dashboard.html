@@ -1,0 +1,184 @@
+<header class="page-header">
+  <span class="eyebrow">Question 10</span>
+  <h1>Analytics Dashboard</h1>
+  <p>
+    Employees from <code>https://dummyjson.com/users</code>. Search, filter and page through them;
+    the numbers and charts follow your filters.
+  </p>
+</header>
+
+@switch (store.loadState().status) {
+  @case ('loading') {
+    <div class="kpis" aria-busy="true">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="card kpi skeleton"></div>
+      }
+    </div>
+    <div class="card skeleton table-skeleton" role="status">
+      <span class="sr-only">Loading employees…</span>
+    </div>
+  }
+
+  @case ('error') {
+    <div class="alert error row" role="alert">
+      <span>{{ store.error() }}</span>
+      <button type="button" class="btn small" (click)="store.reload()">Retry</button>
+    </div>
+  }
+
+  @case ('success') {
+    <!-- KPI cards -->
+    <div class="kpis">
+      <div class="card kpi">
+        <span class="label">Total Employees</span>
+        <span class="value">{{ store.kpis().total }}</span>
+      </div>
+      <div class="card kpi">
+        <span class="label">Active Employees</span>
+        <span class="value">{{ store.kpis().active }}</span>
+      </div>
+      <div class="card kpi">
+        <span class="label">Department Count</span>
+        <span class="value">{{ store.kpis().departments }}</span>
+      </div>
+    </div>
+    @if (store.hasFilters()) {
+      <p class="muted filter-note">Figures reflect the current filters.</p>
+    }
+
+    <!-- Search and filters -->
+    <div class="card toolbar">
+      <div class="field grow">
+        <label for="dash-search">Search</label>
+        <input
+          id="dash-search"
+          class="input"
+          type="search"
+          placeholder="Name or email"
+          autocomplete="off"
+          [formControl]="searchControl"
+        />
+      </div>
+      <div class="field">
+        <label for="dash-dept">Department</label>
+        <select
+          id="dash-dept"
+          class="input"
+          [value]="store.department()"
+          (change)="onDepartment($event)"
+        >
+          <option value="">All departments</option>
+          @for (dept of store.departments(); track dept) {
+            <option [value]="dept" [selected]="dept === store.department()">{{ dept }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label for="dash-status">Status</label>
+        <select
+          id="dash-status"
+          class="input"
+          [value]="store.statusFilter()"
+          (change)="onStatus($event)"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      @if (store.hasFilters()) {
+        <button type="button" class="btn reset" (click)="reset()">Reset</button>
+      }
+    </div>
+
+    <!-- Charts: Chart.js is only downloaded when this block scrolls into view -->
+    @defer (on viewport) {
+      <app-dashboard-charts
+        [byDepartment]="store.byDepartment()"
+        [active]="store.kpis().active"
+        [inactive]="store.kpis().total - store.kpis().active"
+      />
+    } @placeholder {
+      <div class="card skeleton chart-skeleton"></div>
+    } @loading (minimum 200ms) {
+      <div class="card skeleton chart-skeleton"></div>
+    }
+
+    <!-- Paginated table -->
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Department</th>
+            <th>Email</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (emp of store.paged(); track emp.id) {
+            <tr>
+              <td>{{ emp.id }}</td>
+              <td class="strong">{{ emp.name }}</td>
+              <td>{{ emp.title }}</td>
+              <td>{{ emp.department }}</td>
+              <td>{{ emp.email }}</td>
+              <td>
+                <span class="badge" [class.on]="emp.active">
+                  {{ emp.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="muted">No employees match your filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="pagination" aria-label="Pagination">
+      <span class="muted">{{ rangeLabel() }}</span>
+      <div class="pages">
+        <button
+          type="button"
+          class="btn small"
+          [disabled]="store.currentPage() === 1"
+          (click)="store.goToPage(store.currentPage() - 1)"
+        >
+          Prev
+        </button>
+        @for (n of pageNumbers(); track n) {
+          <button
+            type="button"
+            class="btn small"
+            [class.primary]="n === store.currentPage()"
+            [attr.aria-current]="n === store.currentPage() ? 'page' : null"
+            (click)="store.goToPage(n)"
+          >
+            {{ n }}
+          </button>
+        }
+        <button
+          type="button"
+          class="btn small"
+          [disabled]="store.currentPage() === store.totalPages()"
+          (click)="store.goToPage(store.currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+      <label class="row page-size">
+        <span class="muted">Rows</span>
+        <select class="input" [value]="store.pageSize()" (change)="onPageSize($event)">
+          @for (size of pageSizes; track size) {
+            <option [value]="size" [selected]="size === store.pageSize()">{{ size }}</option>
+          }
+        </select>
+      </label>
+    </nav>
+  }
+}

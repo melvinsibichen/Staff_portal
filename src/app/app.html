@@ -1,0 +1,42 @@
+<header class="topbar">
+  <button
+    type="button"
+    class="menu-btn"
+    aria-label="Toggle navigation"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="side-nav"
+    (click)="toggleMenu()"
+  >
+    <span></span><span></span><span></span>
+  </button>
+  <a routerLink="/" class="brand" (click)="closeMenu()">
+    <span class="brand-mark">SP</span>
+    Staff Portal
+  </a>
+</header>
+
+<div class="layout">
+  <nav id="side-nav" class="sidenav" [class.open]="menuOpen()" aria-label="Questions">
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMenu()"
+      >Overview</a
+    >
+    @for (item of navItems; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active" (click)="closeMenu()">
+        <span class="q">{{ item.question }}</span>
+        {{ item.title }}
+      </a>
+    }
+  </nav>
+
+  @if (menuOpen()) {
+    <div class="backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+  }
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

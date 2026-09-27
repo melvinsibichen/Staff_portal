@@ -1,0 +1,37 @@
+<header class="page-header">
+  <span class="eyebrow">Question 1</span>
+  <h1>Employee Search</h1>
+</header>
+
+<section class="card stack">
+  <div class="search row">
+    <label for="employee-search" class="sr-only">Search employees by name</label>
+    <input
+      id="employee-search"
+      class="input"
+      type="search"
+      placeholder="Search by name…"
+      autocomplete="off"
+      [(ngModel)]="searchTerm"
+    />
+    @if (searchTerm()) {
+      <button type="button" class="btn" (click)="clear()">Clear</button>
+    }
+  </div>
+
+  <p class="muted count" aria-live="polite">
+    Showing {{ filteredEmployees().length }} of {{ employees().length }} employees
+  </p>
+
+  <ul class="list">
+    @for (emp of filteredEmployees(); track emp.id) {
+      <li>
+        <span class="avatar" aria-hidden="true">{{ emp.name.charAt(0) }}</span>
+        <span class="name">{{ emp.name }}</span>
+        <span class="badge">{{ emp.department }}</span>
+      </li>
+    } @empty {
+      <li class="empty">No employees found for “{{ searchTerm() }}”.</li>
+    }
+  </ul>
+</section>

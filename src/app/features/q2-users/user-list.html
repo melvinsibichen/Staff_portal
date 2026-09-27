@@ -1,0 +1,55 @@
+<header class="page-header">
+  <span class="eyebrow">Question 2</span>
+  <h1>Users</h1>
+  <p>
+    Loaded by <code>UserService</code> with <code>HttpClient</code> from
+    <code>https://jsonplaceholder.typicode.com/users</code>.
+  </p>
+</header>
+
+@if (loading()) {
+  <div class="card row loading" role="status">
+    <div class="spinner"></div>
+    Loading users…
+  </div>
+} @else if (error()) {
+  <div class="alert error row" role="alert">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn small" (click)="loadUsers()">Retry</button>
+  </div>
+} @else {
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>City</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ user.id }}</td>
+            <td class="strong">{{ user.name }}</td>
+            <td>{{ user.username }}</td>
+            <td>
+              <a [href]="'mailto:' + user.email">{{ user.email }}</a>
+            </td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.address.city }}</td>
+            <td>{{ user.company.name }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" class="muted">No users returned.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

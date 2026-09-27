@@ -1,0 +1,33 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 440px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.form-col .alert {
+  margin-bottom: 16px;
+}
+
+.password {
+  display: flex;
+  gap: 8px;
+
+  .input {
+    flex: 1;
+  }
+
+  .btn {
+    min-width: 64px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-col {
+    max-width: 480px;
+  }
+}

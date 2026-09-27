@@ -1,0 +1,91 @@
+<form #employeeForm="ngForm" class="card stack" novalidate (ngSubmit)="onSubmit()">
+  <h2>{{ isEdit() ? 'Edit employee' : 'Add employee' }}</h2>
+
+  <div class="field">
+    <label for="emp-id">Employee ID</label>
+    <input
+      id="emp-id"
+      name="id"
+      type="number"
+      class="input"
+      required
+      min="1"
+      [readonly]="isEdit()"
+      [(ngModel)]="draft().id"
+      #idCtrl="ngModel"
+      [class.invalid]="(idCtrl.invalid || duplicateId()) && idCtrl.touched"
+    />
+    @if (idCtrl.touched && idCtrl.hasError('required')) {
+      <span class="error">Employee ID is required.</span>
+    }
+    @if (duplicateId()) {
+      <span class="error">An employee with this ID already exists.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="emp-name">Employee Name</label>
+    <input
+      id="emp-name"
+      name="name"
+      class="input"
+      required
+      [(ngModel)]="draft().name"
+      #nameCtrl="ngModel"
+      [class.invalid]="nameCtrl.invalid && nameCtrl.touched"
+    />
+    @if (nameCtrl.touched && nameCtrl.invalid) {
+      <span class="error">Employee name is required.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="emp-dept">Department</label>
+    <select
+      id="emp-dept"
+      name="department"
+      class="input"
+      required
+      [(ngModel)]="draft().department"
+      #deptCtrl="ngModel"
+      [class.invalid]="deptCtrl.invalid && deptCtrl.touched"
+    >
+      <option value="" disabled>Select a department</option>
+      @for (dept of departments; track dept) {
+        <option [value]="dept">{{ dept }}</option>
+      }
+    </select>
+    @if (deptCtrl.touched && deptCtrl.invalid) {
+      <span class="error">Please choose a department.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="emp-email">Email</label>
+    <input
+      id="emp-email"
+      name="email"
+      type="email"
+      class="input"
+      required
+      email
+      [(ngModel)]="draft().email"
+      #emailCtrl="ngModel"
+      [class.invalid]="emailCtrl.invalid && emailCtrl.touched"
+    />
+    @if (emailCtrl.touched && emailCtrl.hasError('required')) {
+      <span class="error">Email is required.</span>
+    } @else if (emailCtrl.touched && emailCtrl.hasError('email')) {
+      <span class="error">Enter a valid email address.</span>
+    }
+  </div>
+
+  <div class="row">
+    <button type="submit" class="btn primary">
+      {{ isEdit() ? 'Save changes' : 'Add employee' }}
+    </button>
+    @if (isEdit()) {
+      <button type="button" class="btn" (click)="onCancel()">Cancel</button>
+    }
+  </div>
+</form>

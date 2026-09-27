@@ -1,0 +1,61 @@
+<header class="page-header">
+  <span class="eyebrow">Question 7</span>
+  <h1>RxJS Search</h1>
+  <p>
+    Searches users by name on the server as you type. The pipeline uses
+    <code>debounceTime(400)</code>, <code>distinctUntilChanged()</code> and
+    <code>switchMap()</code> so it only calls the API when it needs to.
+  </p>
+</header>
+
+<section class="card stack">
+  <div class="field">
+    <label for="rx-search">Search users by name</label>
+    <input
+      id="rx-search"
+      class="input"
+      type="search"
+      placeholder="Try “le”, “an” or “Clementine”"
+      autocomplete="off"
+      [formControl]="searchControl"
+    />
+  </div>
+
+  <div class="stats" aria-live="polite">
+    <div>
+      <span class="num">{{ keystrokes() }}</span>
+      <span class="muted">value changes</span>
+    </div>
+    <div>
+      <span class="num">{{ requests() }}</span>
+      <span class="muted">API requests sent</span>
+    </div>
+  </div>
+
+  @switch (state().status) {
+    @case ('idle') {
+      <p class="muted">Start typing to search.</p>
+    }
+    @case ('loading') {
+      <div class="row muted" role="status">
+        <div class="spinner"></div>
+        Searching…
+      </div>
+    }
+    @case ('error') {
+      <div class="alert error" role="alert">{{ state().error }}</div>
+    }
+    @case ('success') {
+      <ul class="results">
+        @for (user of state().results; track user.id) {
+          <li>
+            <strong>{{ user.name }}</strong>
+            <span class="muted">{{ user.email }} · {{ user.address.city }}</span>
+          </li>
+        } @empty {
+          <li class="muted">No users match “{{ searchControl.value }}”.</li>
+        }
+      </ul>
+    }
+  }
+</section>

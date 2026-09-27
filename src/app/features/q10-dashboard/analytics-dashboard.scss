@@ -1,0 +1,116 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  margin-bottom: 4px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 96px;
+
+  .label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+}
+
+.filter-note {
+  margin: -8px 0 0;
+  font-size: 13px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px;
+
+  .field {
+    min-width: 170px;
+  }
+
+  .grow {
+    flex: 1;
+    min-width: 220px;
+  }
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .page-size .input {
+    width: auto;
+    min-height: 32px;
+    padding: 4px 8px;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--hover) 25%, var(--line) 50%, var(--hover) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.table-skeleton {
+  height: 360px;
+}
+
+.chart-skeleton {
+  height: 340px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi {
+    min-height: auto;
+  }
+
+  .toolbar .field {
+    width: 100%;
+  }
+}
