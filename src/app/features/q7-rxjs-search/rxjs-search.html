@@ -37,9 +37,11 @@
       <p class="muted">Start typing to search.</p>
     }
     @case ('loading') {
-      <div class="row muted" role="status">
-        <div class="spinner"></div>
-        Searching…
+      <div class="stack" aria-busy="true">
+        <span class="sr-only" role="status">Searching…</span>
+        @for (row of [1, 2, 3]; track row) {
+          <span class="skeleton skeleton-line short" aria-hidden="true"></span>
+        }
       </div>
     }
     @case ('error') {
@@ -53,7 +55,10 @@
             <span class="muted">{{ user.email }} · {{ user.address.city }}</span>
           </li>
         } @empty {
-          <li class="muted">No users match “{{ searchControl.value }}”.</li>
+          <li class="empty-state">
+            <strong>No users match “{{ searchControl.value }}”</strong>
+            <p>Try part of a first or last name.</p>
+          </li>
         }
       </ul>
     }

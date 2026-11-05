@@ -43,6 +43,11 @@ export class EmployeeForm {
     return !this.isEdit() && id !== null && this.existingIds().includes(id);
   });
 
+  /** Replace the draft instead of mutating it, so computed signals like duplicateId update. */
+  protected patch<K extends keyof EmployeeDraft>(key: K, value: EmployeeDraft[K]): void {
+    this.draft.update((d) => ({ ...d, [key]: value }));
+  }
+
   protected onSubmit(): void {
     const form = this.form();
     const { id, name, department, email } = this.draft();

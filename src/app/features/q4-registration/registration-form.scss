@@ -31,3 +31,12 @@
     max-width: 480px;
   }
 }
+
+.small {
+  margin: 0;
+  font-size: 13px;
+
+  a {
+    color: var(--accent);
+  }
+}

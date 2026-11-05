@@ -1,6 +1,7 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, httpResource } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
+import { httpErrorMessage } from '../http/http.interceptors';
 import { User } from '../models/user.model';
 
 /**
@@ -12,8 +13,8 @@ export class UserService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl).pipe(catchError(toFriendlyError));
+  usersResource() {
+    return httpResource<User[]>(() => this.apiUrl, { defaultValue: [] });
   }
 
   /** Server-side, case-insensitive partial match on the user's name. */
@@ -30,9 +31,5 @@ function escapeRegExp(value: string): string {
 
 /** Turns an HttpErrorResponse into an Error with a message a user can read. */
 export function toFriendlyError(error: HttpErrorResponse): Observable<never> {
-  const message =
-    error.status === 0
-      ? 'Could not reach the server. Check your internet connection and try again.'
-      : `The server returned an error (${error.status}). Please try again later.`;
-  return throwError(() => new Error(message));
+  return throwError(() => new Error(httpErrorMessage(error)));
 }

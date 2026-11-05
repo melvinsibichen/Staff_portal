@@ -24,7 +24,7 @@ import { AuthService } from '../../../core/auth/auth.service';
       </p>
       <div class="row">
         <button type="button" class="btn primary" (click)="logout()">Log out</button>
-        <a class="btn" routerLink="/">Back to overview</a>
+        <a class="btn" routerLink="/overview">Back to overview</a>
       </div>
     </section>
   `,

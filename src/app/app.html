@@ -1,42 +1,81 @@
+@if (loading.active()) {
+  <div class="loading-bar" role="progressbar" aria-label="Loading data"></div>
+}
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
 <header class="topbar">
-  <button
-    type="button"
-    class="menu-btn"
-    aria-label="Toggle navigation"
-    [attr.aria-expanded]="menuOpen()"
-    aria-controls="side-nav"
-    (click)="toggleMenu()"
-  >
-    <span></span><span></span><span></span>
-  </button>
-  <a routerLink="/" class="brand" (click)="closeMenu()">
-    <span class="brand-mark">SP</span>
-    Staff Portal
-  </a>
+  @if (auth.loggedIn()) {
+    <button
+      type="button"
+      class="menu-btn"
+      aria-label="Toggle navigation"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="side-nav"
+      (click)="toggleMenu()"
+    >
+      <span></span><span></span><span></span>
+    </button>
+  }
+  <a routerLink="/" class="brand" (click)="closeMenu()"> Staff Portal </a>
+
+  <div class="actions">
+    <button
+      type="button"
+      class="btn small theme-btn"
+      [attr.aria-pressed]="theme.theme() === 'dark'"
+      (click)="theme.toggle()"
+    >
+      {{ theme.theme() === 'dark' ? 'Light mode' : 'Dark mode' }}
+    </button>
+    @if (auth.loggedIn()) {
+      <span class="user muted"
+        >Signed in as <strong>{{ auth.currentUser() }}</strong></span
+      >
+      <button type="button" class="btn small" (click)="logout()">Log out</button>
+    } @else {
+      <a class="btn small" routerLink="/login" routerLinkActive="primary">Log in</a>
+      <a class="btn small" routerLink="/register" routerLinkActive="primary">Register</a>
+    }
+  </div>
 </header>
 
 <div class="layout">
-  <nav id="side-nav" class="sidenav" [class.open]="menuOpen()" aria-label="Questions">
-    <a
-      routerLink="/"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      (click)="closeMenu()"
-      >Overview</a
-    >
-    @for (item of navItems; track item.path) {
-      <a [routerLink]="item.path" routerLinkActive="active" (click)="closeMenu()">
-        <span class="q">{{ item.question }}</span>
-        {{ item.title }}
-      </a>
-    }
-  </nav>
+  @if (auth.loggedIn()) {
+    <nav id="side-nav" class="sidenav" [class.open]="menuOpen()" aria-label="Questions">
+      <a
+        routerLink="/overview"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="closeMenu()"
+        >Overview</a
+      >
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          (click)="closeMenu()"
+        >
+          <span class="q">{{ item.question }}</span>
+          {{ item.title }}
+        </a>
+      }
+    </nav>
 
-  @if (menuOpen()) {
-    <div class="backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+    @if (menuOpen()) {
+      <div class="backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+    }
   }
 
-  <main class="content">
+  <main id="main-content" class="content" tabindex="-1">
     <router-outlet />
   </main>
 </div>
+
+<footer class="footer">
+  <span>© 2026 Staff Portal</span>
+  <span>Developed by Melvin Sibichen · v1.1.0</span>
+</footer>
+
+<app-toasts />

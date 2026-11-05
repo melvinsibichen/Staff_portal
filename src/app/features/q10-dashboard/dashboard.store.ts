@@ -1,6 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, Subject, catchError, map, of, shareReplay, startWith, switchMap } from 'rxjs';
+import { Injectable, computed, inject, linkedSignal, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { DashboardEmployee } from '../../core/models/employee.model';
 import { EmployeeApiService } from './employee-api.service';
 
@@ -19,38 +18,42 @@ export interface DepartmentCount {
 /**
  * Q10 state management: a small signal-based store.
  *
- *  - RxJS handles the async part (fetch, retry, error, caching with shareReplay).
- *  - toSignal() hands the result to signals.
- *  - Filters and paging are writable signals; everything derived is computed(),
- *    so it recalculates only when its inputs change.
+ *  - rxResource wraps the RxJS fetch (with retry and friendly errors) and exposes it as
+ *    signals: status, value, error, reload.
+ *  - Filters are writable signals; everything derived is computed(), so it recalculates
+ *    only when its inputs change.
+ *  - page is a linkedSignal: it resets to 1 by itself whenever a filter or page size changes.
  *
  * Provided in root, so the data is fetched once and reused when you come back.
  */
 @Injectable({ providedIn: 'root' })
 export class DashboardStore {
   private readonly api = inject(EmployeeApiService);
-  private readonly reload$ = new Subject<void>();
 
-  private readonly load$: Observable<LoadState> = this.reload$.pipe(
-    startWith(undefined),
-    switchMap(() =>
-      this.api.getEmployees().pipe(
-        map((data): LoadState => ({ status: 'success', data })),
-        catchError((err: Error) => of<LoadState>({ status: 'error', error: err.message })),
-        startWith<LoadState>({ status: 'loading' }),
-      ),
-    ),
-    shareReplay({ bufferSize: 1, refCount: false }),
-  );
+  private readonly resource = rxResource({ stream: () => this.api.getEmployees() });
 
-  readonly loadState = toSignal(this.load$, { initialValue: { status: 'loading' } as LoadState });
+  readonly loadState = computed<LoadState>(() => {
+    if (this.resource.hasValue()) {
+      return { status: 'success', data: this.resource.value() };
+    }
+    if (this.resource.status() === 'error') {
+      const err = this.resource.error();
+      return { status: 'error', error: err?.message ?? 'Could not load employees.' };
+    }
+    return { status: 'loading' };
+  });
 
   // Filters and paging (writable state)
   readonly search = signal('');
   readonly department = signal('');
   readonly statusFilter = signal<StatusFilter>('all');
-  readonly page = signal(1);
   readonly pageSize = signal(10);
+
+  /** Back to page 1 whenever the search, a filter or the page size changes. */
+  readonly page = linkedSignal({
+    source: () => [this.search(), this.department(), this.statusFilter(), this.pageSize()],
+    computation: () => 1,
+  });
 
   // Derived state
   readonly employees = computed(() => {
@@ -109,22 +112,18 @@ export class DashboardStore {
   // Actions
   setSearch(term: string): void {
     this.search.set(term);
-    this.page.set(1);
   }
 
   setDepartment(department: string): void {
     this.department.set(department);
-    this.page.set(1);
   }
 
   setStatus(status: StatusFilter): void {
     this.statusFilter.set(status);
-    this.page.set(1);
   }
 
   setPageSize(size: number): void {
     this.pageSize.set(size);
-    this.page.set(1);
   }
 
   goToPage(page: number): void {
@@ -139,7 +138,7 @@ export class DashboardStore {
   }
 
   reload(): void {
-    this.reload$.next();
+    this.resource.reload();
   }
 }
 

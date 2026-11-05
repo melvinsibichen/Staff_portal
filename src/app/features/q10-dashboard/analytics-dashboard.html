@@ -133,7 +133,13 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" class="muted">No employees match your filters.</td>
+              <td colspan="6">
+                <div class="empty-state">
+                  <strong>No employees match your filters</strong>
+                  <p>Try a different search or clear the filters.</p>
+                  <button type="button" class="btn small" (click)="reset()">Reset filters</button>
+                </div>
+              </td>
             </tr>
           }
         </tbody>
@@ -141,11 +147,12 @@
     </div>
 
     <nav class="pagination" aria-label="Pagination">
-      <span class="muted">{{ rangeLabel() }}</span>
+      <span class="muted" aria-live="polite">{{ rangeLabel() }}</span>
       <div class="pages">
         <button
           type="button"
           class="btn small"
+          aria-label="Previous page"
           [disabled]="store.currentPage() === 1"
           (click)="store.goToPage(store.currentPage() - 1)"
         >
@@ -156,6 +163,7 @@
             type="button"
             class="btn small"
             [class.primary]="n === store.currentPage()"
+            [attr.aria-label]="'Page ' + n"
             [attr.aria-current]="n === store.currentPage() ? 'page' : null"
             (click)="store.goToPage(n)"
           >
@@ -165,6 +173,7 @@
         <button
           type="button"
           class="btn small"
+          aria-label="Next page"
           [disabled]="store.currentPage() === store.totalPages()"
           (click)="store.goToPage(store.currentPage() + 1)"
         >

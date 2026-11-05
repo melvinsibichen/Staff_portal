@@ -10,7 +10,8 @@ import { NAV_ITEMS } from '../nav-items';
       <h1>Staff Portal</h1>
       <p>
         One Angular app that answers all ten questions. Each question has its own lazy-loaded page.
-        Pick one below or use the side navigation.
+        The flow is Register (Q4), then Log in (Q6), then the Q10 dashboard, which is the home page.
+        Pick any question below or use the side navigation.
       </p>
     </header>
 
@@ -39,13 +40,10 @@ import { NAV_ITEMS } from '../nav-items';
       gap: 8px;
       color: inherit;
       text-decoration: none;
-      transition:
-        border-color 0.15s,
-        transform 0.15s;
+      transition: border-color 0.15s;
     }
     .tile:hover {
       border-color: var(--accent);
-      transform: translateY(-2px);
     }
     .tile h2 {
       font-size: 17px;

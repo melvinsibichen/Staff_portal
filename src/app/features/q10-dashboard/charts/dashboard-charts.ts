@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { ThemeService } from '../../../core/theme/theme.service';
 import { DepartmentCount } from '../dashboard.store';
 
 /**
@@ -17,7 +18,7 @@ import { DepartmentCount } from '../dashboard.store';
       <section class="card">
         <h2>Employees per department</h2>
         <div class="chart bar">
-          <canvas baseChart type="bar" [data]="barData()" [options]="barOptions"></canvas>
+          <canvas baseChart type="bar" [data]="barData()" [options]="barOptions()"></canvas>
         </div>
       </section>
       <section class="card">
@@ -27,7 +28,7 @@ import { DepartmentCount } from '../dashboard.store';
             baseChart
             type="doughnut"
             [data]="doughnutData()"
-            [options]="doughnutOptions"
+            [options]="doughnutOptions()"
           ></canvas>
         </div>
       </section>
@@ -59,13 +60,27 @@ export class DashboardCharts {
   readonly active = input.required<number>();
   readonly inactive = input.required<number>();
 
+  private readonly theme = inject(ThemeService);
+  /** Chart.js draws on a canvas, so it cannot read CSS variables: pass colours per theme. */
+  private readonly colours = computed(() =>
+    this.theme.theme() === 'dark'
+      ? { text: '#a6aba2', grid: '#2f332d', bar: '#8cc4ae', active: '#8cc4ae', inactive: '#4a4f47' }
+      : {
+          text: '#5c625d',
+          grid: '#e2e0d8',
+          bar: '#24594a',
+          active: '#24594a',
+          inactive: '#cfccc2',
+        },
+  );
+
   protected readonly barData = computed<ChartConfiguration<'bar'>['data']>(() => ({
     labels: this.byDepartment().map((d) => d.department),
     datasets: [
       {
         label: 'Employees',
         data: this.byDepartment().map((d) => d.count),
-        backgroundColor: '#3b5bdb',
+        backgroundColor: this.colours().bar,
         borderRadius: 4,
         maxBarThickness: 36,
       },
@@ -77,26 +92,32 @@ export class DashboardCharts {
     datasets: [
       {
         data: [this.active(), this.inactive()],
-        backgroundColor: ['#2b8a3e', '#adb5bd'],
+        backgroundColor: [this.colours().active, this.colours().inactive],
         borderWidth: 0,
       },
     ],
   }));
 
-  protected readonly barOptions: ChartConfiguration<'bar'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { ticks: { autoSkip: false, maxRotation: 60, minRotation: 0 }, grid: { display: false } },
-      y: { beginAtZero: true, ticks: { precision: 0 } },
-    },
-  };
+  protected readonly barOptions = computed<ChartConfiguration<'bar'>['options']>(() => {
+    const c = this.colours();
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { autoSkip: false, maxRotation: 60, minRotation: 0, color: c.text },
+          grid: { display: false },
+        },
+        y: { beginAtZero: true, ticks: { precision: 0, color: c.text }, grid: { color: c.grid } },
+      },
+    };
+  });
 
-  protected readonly doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+  protected readonly doughnutOptions = computed<ChartConfiguration<'doughnut'>['options']>(() => ({
     responsive: true,
     maintainAspectRatio: false,
     cutout: '62%',
-    plugins: { legend: { position: 'bottom' } },
-  };
+    plugins: { legend: { position: 'bottom', labels: { color: this.colours().text } } },
+  }));
 }

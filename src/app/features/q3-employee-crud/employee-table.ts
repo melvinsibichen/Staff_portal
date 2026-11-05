@@ -26,15 +26,32 @@ import { ManagedEmployee } from '../../core/models/employee.model';
               </td>
               <td>{{ emp.email }}</td>
               <td class="actions">
-                <button type="button" class="btn small" (click)="edit.emit(emp)">Edit</button>
-                <button type="button" class="btn small danger" (click)="remove.emit(emp)">
+                <button
+                  type="button"
+                  class="btn small"
+                  [attr.aria-label]="'Edit ' + emp.name"
+                  (click)="edit.emit(emp)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="btn small danger"
+                  [attr.aria-label]="'Delete ' + emp.name"
+                  (click)="remove.emit(emp)"
+                >
                   Delete
                 </button>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="muted">No employees yet. Add one with the form.</td>
+              <td colspan="5">
+                <div class="empty-state">
+                  <strong>No employees yet</strong>
+                  <p>Add one with the form, or restore the sample data.</p>
+                </div>
+              </td>
             </tr>
           }
         </tbody>

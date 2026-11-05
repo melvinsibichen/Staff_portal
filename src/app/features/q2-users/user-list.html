@@ -2,15 +2,27 @@
   <span class="eyebrow">Question 2</span>
   <h1>Users</h1>
   <p>
-    Loaded by <code>UserService</code> with <code>HttpClient</code> from
-    <code>https://jsonplaceholder.typicode.com/users</code>.
+    Loaded by <code>UserService</code> (an <code>httpResource</code> built on
+    <code>HttpClient</code>) from <code>https://jsonplaceholder.typicode.com/users</code>.
   </p>
 </header>
 
-@if (loading()) {
-  <div class="card row loading" role="status">
-    <div class="spinner"></div>
-    Loading users…
+@if (users.isLoading()) {
+  <div class="table-wrap" aria-busy="true">
+    <span class="sr-only" role="status">Loading users…</span>
+    <table class="table" aria-hidden="true">
+      <tbody>
+        @for (row of skeletonRows; track row) {
+          <tr>
+            <td><span class="skeleton skeleton-line short"></span></td>
+            <td><span class="skeleton skeleton-line"></span></td>
+            <td><span class="skeleton skeleton-line"></span></td>
+            <td><span class="skeleton skeleton-line"></span></td>
+            <td><span class="skeleton skeleton-line short"></span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </div>
 } @else if (error()) {
   <div class="alert error row" role="alert">
@@ -32,7 +44,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of users(); track user.id) {
+        @for (user of users.value(); track user.id) {
           <tr>
             <td>{{ user.id }}</td>
             <td class="strong">{{ user.name }}</td>
@@ -46,7 +58,13 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="muted">No users returned.</td>
+            <td colspan="7">
+              <div class="empty-state">
+                <strong>No users returned</strong>
+                <p>The API answered with an empty list.</p>
+                <button type="button" class="btn small" (click)="loadUsers()">Reload</button>
+              </div>
+            </td>
           </tr>
         }
       </tbody>

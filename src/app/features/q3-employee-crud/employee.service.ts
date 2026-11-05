@@ -45,7 +45,7 @@ function readStored(): ManagedEmployee[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : null;
     if (Array.isArray(parsed)) {
-      return parsed as ManagedEmployee[];
+      return parsed.filter(isEmployee);
     }
   } catch {
     // Unavailable or corrupt storage: fall back to the sample data.
@@ -59,4 +59,16 @@ function writeStored(list: ManagedEmployee[]): void {
   } catch {
     // Storage can be unavailable (private mode); the in-memory array still works.
   }
+}
+
+function isEmployee(value: unknown): value is ManagedEmployee {
+  const e = value as ManagedEmployee;
+  return (
+    !!e &&
+    typeof e === 'object' &&
+    Number.isInteger(e.id) &&
+    typeof e.name === 'string' &&
+    typeof e.department === 'string' &&
+    typeof e.email === 'string'
+  );
 }

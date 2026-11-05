@@ -78,27 +78,12 @@
   }
 }
 
-.skeleton {
-  background: linear-gradient(90deg, var(--hover) 25%, var(--line) 50%, var(--hover) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
 .table-skeleton {
   height: 360px;
 }
 
 .chart-skeleton {
   height: 340px;
-}
-
-@keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
 }
 
 @media (max-width: 760px) {

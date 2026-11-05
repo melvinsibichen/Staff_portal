@@ -1,6 +1,6 @@
 import { Injectable, effect, signal } from '@angular/core';
 
-/** What we keep about a registered user. Passwords are deliberately never stored. */
+/** Profile shown on the Q4 cards. The password is not here: AuthService keeps only its hash. */
 export interface RegisteredUser {
   id: string;
   name: string;
@@ -54,7 +54,7 @@ export class RegistrationService {
 function readStored(): RegisteredUser[] {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    return Array.isArray(parsed) ? (parsed as RegisteredUser[]) : [];
+    return Array.isArray(parsed) ? parsed.filter(isRegisteredUser) : [];
   } catch {
     return [];
   }
@@ -66,4 +66,15 @@ function writeStored(list: RegisteredUser[]): void {
   } catch {
     // Storage can be unavailable (private mode); the in-memory list still works.
   }
+}
+
+function isRegisteredUser(value: unknown): value is RegisteredUser {
+  const u = value as RegisteredUser;
+  return (
+    !!u &&
+    typeof u === 'object' &&
+    ['id', 'name', 'email', 'phone', 'registeredAt'].every(
+      (key) => typeof (u as unknown as Record<string, unknown>)[key] === 'string',
+    )
+  );
 }

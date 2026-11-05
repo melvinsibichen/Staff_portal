@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ManagedEmployee } from '../../core/models/employee.model';
+import { ToastService } from '../../shared/toast/toast.service';
 import { EmployeeForm } from './employee-form';
 import { EmployeeTable } from './employee-table';
 import { EmployeeService } from './employee.service';
@@ -16,15 +17,11 @@ import { EmployeeService } from './employee.service';
       <span class="eyebrow">Question 3</span>
       <h1>Employee Management</h1>
       <p>
-        Implementation Note: Add, edit and delete employees. Data is kept in a local array (saved in this browser), so
-        your changes stay when you switch pages or refresh.
+        Implementation Note: Add, edit and delete employees. Data is kept in a local array (saved in
+        this browser), so your changes stay when you switch pages or refresh.
       </p>
       <button type="button" class="btn small reset" (click)="onReset()">Reset sample data</button>
     </header>
-
-    @if (message()) {
-      <div class="alert success" role="status">{{ message() }}</div>
-    }
 
     <div class="layout">
       <app-employee-form
@@ -65,15 +62,15 @@ import { EmployeeService } from './employee.service';
 export class EmployeeManagement {
   protected readonly store = inject(EmployeeService);
   protected readonly editing = signal<ManagedEmployee | null>(null);
-  protected readonly message = signal<string | null>(null);
+  private readonly toasts = inject(ToastService);
 
   onSave(employee: ManagedEmployee): void {
     if (this.editing()) {
       this.store.update(employee);
-      this.flash(`Updated ${employee.name}.`);
+      this.toasts.success(`Updated ${employee.name}.`);
     } else {
       this.store.add(employee);
-      this.flash(`Added ${employee.name}.`);
+      this.toasts.success(`Added ${employee.name}.`);
     }
     this.editing.set(null);
   }
@@ -90,7 +87,7 @@ export class EmployeeManagement {
     if (this.editing()?.id === employee.id) {
       this.editing.set(null);
     }
-    this.flash(`Deleted ${employee.name}.`);
+    this.toasts.success(`Deleted ${employee.name}.`);
   }
 
   onReset(): void {
@@ -99,15 +96,6 @@ export class EmployeeManagement {
     }
     this.store.reset();
     this.editing.set(null);
-    this.flash('Sample data restored.');
-  }
-
-  private flash(text: string): void {
-    this.message.set(text);
-    setTimeout(() => {
-      if (this.message() === text) {
-        this.message.set(null);
-      }
-    }, 2500);
+    this.toasts.success('Sample data restored.');
   }
 }
